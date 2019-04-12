@@ -13,12 +13,14 @@ export class AppComponent {
   title = 'angular-push-notifications';
 
   constructor(swPush: SwPush, pushService: PushNotificationService) {
+    debugger
     if (swPush.isEnabled) {
       swPush
         .requestSubscription({
           serverPublicKey: VAPID_PUBLIC
         })
         .then(subscription => {
+          console.log(subscription)
           pushService.sendSubscriptionToTheServer(subscription).subscribe();
         })
         .catch(console.error);

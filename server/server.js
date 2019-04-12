@@ -15,9 +15,31 @@ app.use(bodyParser.json());
 
 webpush.setVapidDetails('mailto:you@domain.com', PUBLIC_VAPID, PRIVATE_VAPID);
 
+app.all('/*', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
+
 app.post('/subscription', (req, res) => {
+  debugger
+  console.log("registerd")
   const subscription = req.body;
   fakeDatabase.push(subscription);
+  const notificationPayload = {
+    notification: {
+      title: 'New Notification',
+      body: 'This is the body of the notification',
+      icon: 'assets/icons/icon-512x512.png'
+    }
+  };
+
+  const promises = [];
+  fakeDatabase.forEach(subscription => {
+    promises.push(webpush.sendNotification(subscription, JSON.stringify(notificationPayload)));
+  });
+  Promise.all(promises).then(() => res.sendStatus(200));
 });
 
 app.post('/sendNotification', (req, res) => {
